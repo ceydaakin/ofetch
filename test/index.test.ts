@@ -110,6 +110,26 @@ describe("ofetch", () => {
     expect(await $fetch(getURL("binary"))).to.be.instanceOf(Blob);
   });
 
+  it("detects response type case-insensitively and ignores whitespace before parameters", async () => {
+    const fetchWithType = (type: string) =>
+      $fetch.create(
+        {},
+        {
+          fetch: async () =>
+            new Response('{"ok":true}', { headers: { "content-type": type } }),
+        }
+      )("https://example.invalid");
+
+    expect(await fetchWithType("TEXT/PLAIN")).to.equal('{"ok":true}');
+    expect(await fetchWithType("Text/Event-Stream")).to.be.instanceOf(
+      ReadableStream
+    );
+    expect(await fetchWithType("application/json ; charset=utf-8")).to.deep.eq({
+      ok: true,
+    });
+    expect(await fetchWithType("Application/XML")).to.equal('{"ok":true}');
+  });
+
   it("baseURL", async () => {
     expect(await $fetch("/x?foo=123", { baseURL: getURL("url") })).to.equal(
       "/url/x?foo=123"

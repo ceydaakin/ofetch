@@ -58,7 +58,10 @@ export function detectResponseType(_contentType = ""): ResponseType {
   }
 
   // Value might look like: `application/json; charset=utf-8`
-  const contentType = _contentType.split(";").shift() || "";
+  // Media types are case-insensitive and may have whitespace before `;` (RFC 9110 §8.3.1)
+  const contentType = (_contentType.split(";").shift() || "")
+    .trim()
+    .toLowerCase();
 
   if (JSON_RE.test(contentType)) {
     return "json";
