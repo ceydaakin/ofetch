@@ -128,9 +128,8 @@ function mergeHeaders(
   }
   const headers = new Headers(defaults);
   if (input) {
-    for (const [key, value] of Symbol.iterator in input || Array.isArray(input)
-      ? input
-      : new Headers(input)) {
+    // Normalize first so repeated tuple entries are combined, not overwritten
+    for (const [key, value] of new Headers(input)) {
       headers.set(key, value);
     }
   }

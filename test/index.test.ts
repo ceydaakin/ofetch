@@ -382,6 +382,23 @@ describe("ofetch", () => {
     expect(parseParams(path)).toMatchObject({ a: "1", b: "2", c: "3" });
   });
 
+  it("keeps repeated header tuples when merging default headers", async () => {
+    const _customFetch = $fetch.create({
+      headers: { "x-client": "demo", accept: "text/html" },
+    });
+    const { headers } = await _customFetch(getURL("echo"), {
+      headers: [
+        ["Accept", "application/json"],
+        ["Accept", "text/plain"],
+      ],
+    });
+
+    expect(headers).to.include({
+      "x-client": "demo",
+      accept: "application/json, text/plain",
+    });
+  });
+
   it("uses request headers", async () => {
     expect(
       await $fetch(
